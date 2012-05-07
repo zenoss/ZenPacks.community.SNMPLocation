@@ -5,7 +5,7 @@
 NAME = 'ZenPacks.community.SNMPLocation'
 VERSION = '1.0'
 AUTHOR = 'Matt Ray'
-LICENSE = 'GPLv2'
+LICENSE = "GPLv2"
 NAMESPACE_PACKAGES = ['ZenPacks', 'ZenPacks.community']
 PACKAGES = ['ZenPacks', 'ZenPacks.community', 'ZenPacks.community.SNMPLocation']
 INSTALL_REQUIRES = []

@@ -5,7 +5,7 @@ class LocationMap(SnmpPlugin):
     maptype = "LocationMap"
 
     snmpGetMap = GetMap({
-            '.1.3.6.1.2.1.1.6.0' : 'setLocationviaSNMP',
+            '.1.3.6.1.2.1.1.6.0' : 'SNMPLocationCallback',
             })
     
     def process(self, device, results, log):

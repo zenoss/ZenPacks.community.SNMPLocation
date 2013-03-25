@@ -1,3 +1,6 @@
+import logging
+log = logging.getLogger('zen.SNMPLocation')
+
 import Globals
 
 from Products.ZenModel.Device import Device
@@ -101,10 +104,6 @@ class ZenPack(ZenPackBase):
         """Disable modeler plugin(s) (main method)"""
         for plugin in myplugin_iter:
             for d in mydev_iter:
-                try:
-                    dc = dmd.Devices.getOrganizer(d)
-                except KeyError:
-                    continue
                 self.remove_plugin_from_device_or_class(d, plugin)
 
     # Methods called when ZenPack is installed and removed:
@@ -116,7 +115,7 @@ class ZenPack(ZenPackBase):
 
     def remove(self, app, leaveObjects=False):
         # disable globally, for all device classes and devices:
-        self.remove_modeler_plugins(app.zport.dmd, self.modeler_plugins, self.devices_or_classes_to_modify_iterator(app) )
+        self.disable_modeler_plugins(app.zport.dmd, self.modeler_plugins, self.devices_or_classes_to_modify_iterator(app) )
         ZenPackBase.remove(self, app, leaveObjects=leaveObjects)
 
 # vim: set ts=4 sw=4 expandtab: 

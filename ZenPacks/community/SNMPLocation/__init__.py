@@ -32,7 +32,19 @@ unused(Globals)
 # will be called which will take care of updating the object.
 
 @monkeypatch("Products.ZenModel.Device.Device")
-def setSNMPLocation(self, location):
+def setSNMPLocation(self, raw_location):
+
+    # Process the raw_location and remove any trailing "-25", etc. and
+    # put the result in location, and the rest in extra:
+
+    location = raw_location
+    extra = ""
+    seperator = self.raw_location.find('-') 
+    if seperator > 0:
+        location = raw_location[:seperator]
+        extra = raw_location[seperator+1:]
+
+
     self.setLocation(location)
     
 @monkeypatch("Products.ZenModel.Device.Device")

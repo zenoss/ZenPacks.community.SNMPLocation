@@ -45,21 +45,23 @@ class LocationMap(SnmpPlugin):
             # split location into a list of "/"-separated parts:
             loclist = map(self.prepId, location.split("/"))
 
-            # likely, an initial "/" was not in the SNMP location. Check. Add if needed:
-            if loclist[0:1] != "/":
+            # likely, an initial "/" was not in the SNMP location. Check. Add
+            # if needed:
+            if loclist[0][0:1] != "/":
                 # extra "" at beginning of list will add a "/" when joined:
-                loclist = "" + loclist
+                loclist = [""] + loclist
             
-            # set extra to anything after a trailing "-" in the location name, and strip
-            # the "-*" from the end of the location. This is used to hold RU location, such
-            # as "Albuquerque/DC1/Rack01-25" -> "Albuquerque/DC1/Rack01" (ru=25).
-
-            seperator = loclist[-1].find('-')
-            if seperator != -1:
-                # remove from loclist
-                loclist[-1] = loclist[-1][:seperator]
+            # set extra to anything after a trailing "-" in the last
+            # organizer's location name, and strip the "-*" from the end of the
+            # location. This is used to hold RU location, such as
+            # "Albuquerque/DC1/Rack01-25" -> "Albuquerque/DC1/Rack01" (ru=25).
+            
+            separator = loclist[-1].find('-')
+            if separator != -1:
                 # add to extra
-                extra = loclist[-1][seperator+1:] 
+                extra = loclist[-1][separator+1:] 
+                # remove from loclist
+                loclist[-1] = loclist[-1][:separator]
             else:
                 extra = ""
 

@@ -101,7 +101,7 @@ class ZenPack(ZenPackBase):
         if plugin in plugins:
             log.info('Removing %s modeler plugin from %s', plugin, d.id)
             plugins.remove(plugin)
-            dc.setZenProperty('zCollectorPlugins', plugins)
+            d.setZenProperty('zCollectorPlugins', plugins)
 
     def enable_modeler_plugins(self, dmd, myplugin_iter, mydev_iter):
         """Enable modeler plugin(s) (main method)"""

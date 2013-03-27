@@ -38,28 +38,30 @@ class LocationMap(SnmpPlugin):
         # that returned by getSNMPLocation(), to avoid unnecessary model
         # updates.
 
-        newval = om.setSNMPLocation        
-        if len(newval):
-            # run prepId() on all parts between slashes:
-            newval = map(self.prepId, newval.split("/"))
+        location = om.setSNMPLocation # get raw SNMP location value.
+        rackSlot = ""
+
+        if location != "":
+            # split location into a list of "/"-separated parts:
+            loclist = map(self.prepId, location.split("/"))
 
             # likely, an initial "/" was not in the SNMP location. Check. Add if needed:
-            if newval[0] != "/":
+            if loclist[0:1] != "/":
                 # extra "" at beginning of list will add a "/" when joined:
-                newval = "" + newval
+                loclist = "" + loclist
             
-            # Additional processing for RackSlot-related stuff begins here:
-
             # set extra to anything after a trailing "-" in the location name, and strip
             # the "-*" from the end of the location. This is used to hold RU location, such
             # as "Albuquerque/DC1/Rack01-25" -> "Albuquerque/DC1/Rack01" (ru=25).
 
-
-            extra = ""
-            seperator = newval[-1].find('-')
+            seperator = loclist[-1].find('-')
             if seperator != -1:
-                newval[-1] = newval[-1][:seperator]
-                extra = newval[-1][seperator+1:] 
+                # remove from loclist
+                loclist[-1] = loclist[-1][:seperator]
+                # add to extra
+                extra = loclist[-1][seperator+1:] 
+            else:
+                extra = ""
 
             # rackSlot processing. In many cases below, I use [:x] or [x:y]
             # indexes to avoid throwing an IndexError exception if extra is ""
@@ -89,17 +91,17 @@ class LocationMap(SnmpPlugin):
             else:
                 rackSlot = ""
 
-            location = "/".join(newval)
+            # convert our changes back into the location string which we will put in
+            # the objectMap:
+
+            location = "/".join(loclist)
             
             # At this point, location is set to the new SNMP Zenoss-friendly location string
             # and rackSlot has been initialized to a value as necessary.
 
-            # Behind the scenes, we only want rackSlot to be initialized to a value if the
-            # location has changed.
-            
-            # TODO
+        # return values as tuple:    
 
-            om.setSNMPLocation = "/".join(newval)
+        om.setSNMPLocation = ( location, rackSlot )
 
         log.info('Location: %s', om.setSNMPLocation)
 

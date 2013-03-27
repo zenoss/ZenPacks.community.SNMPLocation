@@ -9,6 +9,14 @@ from Products.ZenModel.ZenPack import ZenPack as ZenPackBase
 
 unused(Globals)
 
+# For rackslot extensions, we will add a new property to a device called
+# initialRackSlot. This will contain the initial value that the rackSlot
+# should be set to when the location is updated. We preserve this value
+# so we can return it later when getSNMPLocation is called.
+
+if not hasattr(Device, 'initialRackSlot'):
+    Device.initialRackSlot = ""
+
 # To use the SNMP Location data to update the device, we need *two* methods.
 # They are setSNMPLocation() and getSNMPLocation(), and they must begin with
 # the "get" and "set" prefix. Monkey patching is used to add them to the
@@ -32,26 +40,17 @@ unused(Globals)
 # will be called which will take care of updating the object.
 
 @monkeypatch("Products.ZenModel.Device.Device")
-def setSNMPLocation(self, raw_location):
+def setSNMPLocation(self, args):
 
-    # Process the raw_location and remove any trailing "-25", etc. and
-    # put the result in location, and the rest in extra:
-
-    location = raw_location
-    extra = ""
-    seperator = self.raw_location.find('-') 
-    if seperator > 0:
-        location = raw_location[:seperator]
-        extra = raw_location[seperator+1:]
-
+    location, initial_rackslot = args
 
     self.setLocation(location)
+    self.initialRackSlot = initial_rackslot
+    self.rackSlot = initial_rackslot
     
 @monkeypatch("Products.ZenModel.Device.Device")
 def getSNMPLocation(self):
     
-    loc = self.getLocationName()
-
     # getLocationName() will return an empty string if the device isn't in
     # a location. Otherwise, it will return the fully-qualified location,
     # with each organizer separated by a "/". The location, if set, will 
@@ -61,7 +60,7 @@ def getSNMPLocation(self):
     # receieved from SNMP so that it is Zenoss-friendly (no illegal characters)
     # and will match the format returned by getLocationName().
 
-    return loc
+    return ( self.getLocationName(), self.initialRackSlot )
 
 # Below, we create a sub-class of the ZenPack object which will be used to 
 # install and remove this ZenPack. This allows us to automatically add our
